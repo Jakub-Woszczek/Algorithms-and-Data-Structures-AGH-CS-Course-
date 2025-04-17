@@ -1,0 +1,1 @@
+# 2 tablice i znajdz wspolny podciag

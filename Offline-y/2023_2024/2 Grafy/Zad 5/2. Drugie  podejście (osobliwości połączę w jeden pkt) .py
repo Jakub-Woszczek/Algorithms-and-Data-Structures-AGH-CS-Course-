@@ -1,0 +1,99 @@
+def spacetravel( n, E, S, a, b ):
+    # n - ilość wierzchołków
+    # E - krawędzie z wagami E = [(0, 1, 5) - od v0 do v1 czas 5 ...
+    # S - lista osobliwości - S = [0,2,3]
+    # a, b - start, meta
+
+    # Zaimportuje kolejke priorytetową
+    from queue import PriorityQueue
+
+    # Narazie spróbuje pomysłu na zrobienie z osobliwości grafu pełnego
+    for i in range(len(S)):
+        for j in range(i + 1, len(S)):
+            E.append((S[i], S[j], 0))
+
+    # Wygląda na to że przyda się lista sąsiedztwa, i jest basicowa działczy (*≧︶≦))(￣▽￣* )ゞ
+    L = [[] for _ in range(n)]
+    for i in E:
+        L[i[0]].append([i[1], i[2]])
+        L[i[1]].append([i[0], i[2]])
+
+    # Do dijkstry się przyda array of distances to evaluate in every iteration distance to ceritan vertex
+    distances = [float('inf') for _ in range(n)]
+
+    # Traz napisz DiCkstrije w osobnej funkcji
+    def dikstria(G, start, destiny, distance):  # NWM w jakiej formie ma być G (´･ω･`)?
+
+        # We evaluate 1st vertes and label it with  distance 0
+        distance[start] = 0
+        queue = PriorityQueue()  # do kolejki będziemy dodawać tuple (dystans, index_wierzchołka)
+        # Dodajemy pierwszego tupla
+        queue.put((0, start))
+        # Dodaj zmienną arrival żeby zreturnować None jakby nie dojechał
+        arrival = 0
+        # Tutaj waruna daje dopóki jest jakaś kolejka
+        while not queue.empty():
+
+            # Ściągamy górny wierzchołek z niej i idziemy do jego somsiadów ( tutaj mamy index)
+            v = queue.get()[1]
+            for i in G[v]:  # Tutaj na tablicy sąsiedztwa idę do sąsiadów i=[index_somsiada, dystans]
+                v_next = i[0]
+                distance_next = i[1]
+
+                # Tu sprawdzę czy arrival siądzie
+                if v_next == destiny:
+                    arrival = 1
+                # Tutaj sprawdzam czy nowy dystans nie jest lepszy
+                print(distance[v_next], distance[v], distance_next)
+                if distance[v_next] > distance[v] + distance_next:
+                    distance[v_next] = distance[v] + distance_next
+                    queue.put((distance[v_next], v_next))
+
+        # Sprawdzę czy wgl doszło
+        if arrival == 0:
+            return None
+        return distance[destiny]
+
+    return dikstria(L, a, b, distances)
+
+
+def scalenie(E,S,n):
+
+    L = [[] for _ in range(n)]
+    for i in E:
+        L[i[0]].append([i[1], i[2]])
+        L[i[1]].append([i[0], i[2]])
+    print(L)
+    # Tuej trza mi index jedynej osobowości
+    the_singularity = S[0]
+
+    # Tutaj robię pentelkę po kolejnych indexach ( osobowościach)
+    n = len(S)
+    for i in range(1,n):
+
+        # Mam index sing_to_del w E
+        singularity_to_del = S[i]
+
+        # Teraz robię pentelkę po krawędziach z sing_to_del
+        for edge_to_del in range(len(L[singularity_to_del])):
+            # edge_to_del - index w L[singularity_to_del] danej kraw
+            neighbour,distance = L[singularity_to_del][edge_to_del][0],L[singularity_to_del][edge_to_del][1]
+
+            # Teraz sprawdzę czy krawędzie się nie zdublują
+            flaga_czy_dublują = 0
+            for spr in range(len(L[0])):
+                if L[0][spr][0] == neighbour and L[0][spr][1] > distance:
+                    L[0][spr][1] = distance
+                    flaga_czy_dublują = 1
+
+            if flaga_czy_dublują == 0:
+                # Zrobiłem flagę czy nie dublują, i powinno być dobrze
+                L[0].append([neighbour,distance])
+
+            # Trzeba dać None usuniętej krawędzi
+            # L[]
+
+        # Trzeba jeszcze None dać na usuniętym wierzchołku
+        L[singularity_to_del] = None
+
+    return L
